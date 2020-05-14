@@ -7,39 +7,36 @@
 #include <Halide.h>
 #include "finish.h"
 
-class AbstractInputSource {
+class RawImage {
 public:
-    virtual ~AbstractInputSource() = default;
-    virtual int GetWidth() const = 0;
-    virtual int GetHeight() const = 0;
-    virtual int GetBlackLevel() const = 0;
-    virtual int GetWhiteLevel() const = 0;
-    virtual WhiteBalance GetWhiteBalance() const = 0;
-    virtual void CopyToBuffer(Halide::Runtime::Buffer<uint16_t>& buffer) const = 0;
+    explicit RawImage(const std::string& path);
 
-    using SPtr = std::shared_ptr<AbstractInputSource>;
-};
+    ~RawImage() = default;
 
-class RawSource : public AbstractInputSource {
-public:
-    explicit RawSource(const std::string& path);
+    int GetWidth() const { return RawProcessor->imgdata.rawdata.sizes.width; }
 
-    ~RawSource() override {
-        RawProcessor.free_image();
-    }
+    int GetHeight() const { return RawProcessor->imgdata.rawdata.sizes.height; }
 
-    int GetWidth() const override { return RawProcessor.imgdata.rawdata.sizes.width; }
+    int GetScalarBlackLevel() const;
 
-    int GetHeight() const override { return RawProcessor.imgdata.rawdata.sizes.height; }
+    std::array<float, 4> GetBlackLevel() const;
 
-    int GetBlackLevel() const override { return RawProcessor.imgdata.color.black; }
+    int GetWhiteLevel() const { return RawProcessor->imgdata.color.maximum; }
 
-    int GetWhiteLevel() const override { return RawProcessor.imgdata.color.maximum; }
+    WhiteBalance GetWhiteBalance() const;
 
-    WhiteBalance GetWhiteBalance() const override;
+    std::string GetCfaPatternString() const;
+    CfaPattern GetCfaPattern() const;
 
-    void CopyToBuffer(Halide::Runtime::Buffer<uint16_t>& buffer) const override;
+    Halide::Runtime::Buffer<float> GetColorCorrectionMatrix() const;
 
+    void CopyToBuffer(Halide::Runtime::Buffer<uint16_t>& buffer) const;
+
+    // Writes current RawImage as DNG. If buffer was provided, then use it instead of internal buffer.
+    void WriteDng(const std::string& path, const Halide::Runtime::Buffer<uint16_t>& buffer = {}) const;
+
+    std::shared_ptr<LibRaw> GetRawProcessor() const { return RawProcessor; }
 private:
-    LibRaw RawProcessor;
+    std::string Path;
+    std::shared_ptr<LibRaw> RawProcessor;
 };

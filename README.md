@@ -6,23 +6,19 @@ Original Document on the subject (by Timothy Brooks): http://timothybrooks.com/t
 ### Compilation instructions:
 1. Install libraw, libpng, and libjpeg.¹
 2. Download and compile llvm 3.9
-3. Download the "2017-06-03" source of Halide from https://github.com/halide/Halide_old_history/releases
-4. Compile Halide according to the README.md file included with the source file zip of halide.
-5. Go the folder you have the hdr-plus code in.
-6. Set `HALIDE_ROOT_DIR` in CMakeLists.txt to the Halide directory path.
-7. From the project root directory, run the following commands:
+3. Install or compile the latest version Halide
+4. Go the folder you have the hdr-plus code in.
+5. From the project root directory, run the following commands:
 ```
 mkdir build
 cd build
-cmake ..
-make
+cmake -DHALIDE_DISTRIB_DIR=$(Insert halide directory) ..
+make -j$(expr $(nproc) \+ 1)
 ```
 
 ### HDR+ algorithm examples:
 
-Timothy Brooks provided images (at the link below) that have burst shot inputs and the HDR+'s output.
-
-https://drive.google.com/drive/folders/1XR61IhzuYQU5eLQfBJ0KEMK83Aocta6g?usp=sharing
+Timothy Brooks provided images but they had to be taken off of Google Drive because the user titaniumtown doesn't have any space for it. If you have any suggestions, please contact titaniumtown.
 
 ### Compiled Binary Usage:
 ```
